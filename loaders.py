@@ -1,6 +1,6 @@
 import pygame, pygame.mixer, os
 
-def loadImage( name, colorkey = None ):
+def loadImage(name, colorkey = None):
     fullname = os.path.join('graphics', name)
     try:
         image = pygame.image.load(fullname)

@@ -1,8 +1,8 @@
-import pygame, pygame.mixer, os, random
+import pygame, pygame.mixer, os, random, glob
 
 EVENT_MUSIC_END = pygame.constants.USEREVENT
 
-MUSIC_TUNES_LIST = os.listdir( "music" )
+MUSIC_TUNES_LIST = glob.glob("music/*.xm") + glob.glob("music/*.it")
 MUSIC_TUNES_INDEX = None
 MUSIC_ENABLED = 0
 
@@ -16,17 +16,17 @@ def nextMusicTune():
 
   global MUSIC_TUNES_LIST, MUSIC_TUNES_INDEX
 
-  MUSIC_TUNES_INDEX = random.randint( 0, len( MUSIC_TUNES_LIST ) - 1 )
+  MUSIC_TUNES_INDEX = random.randint(0, len(MUSIC_TUNES_LIST) - 1)
 
-  song_name = os.path.join( "music", MUSIC_TUNES_LIST[ MUSIC_TUNES_INDEX ] )
+  song_name = MUSIC_TUNES_LIST[MUSIC_TUNES_INDEX]
 
-  pygame.mixer.music.load( song_name );
+  pygame.mixer.music.load(song_name);
   pygame.mixer.music.play()
 
 
 
 
-def setMusicEnabled( enabled ):
+def setMusicEnabled(enabled):
   global MUSIC_ENABLED
 
   if MUSIC_ENABLED == enabled:
@@ -37,4 +37,4 @@ def setMusicEnabled( enabled ):
   if enabled:
     nextMusicTune()
   else:
-    pygame.mixer.music.fadeout( 100 )
+    pygame.mixer.music.fadeout(100)

@@ -4,12 +4,12 @@ from game_globals import *
 from game_tools import *
 
 class tStone:
-  def __init__( self ):
-    self.Type = random.randint( 0, len( COLORS ) - 1 )
-    self.Animation = tAnimation( STONE_IMAGES[ COLORS[ self.Type ] ], 0.04 )
-    self.Position = ( 0., 0. )
-    self.Velocity = ( 0., 0. )
-    self.Acceleration = ( 0., 0. )
+  def __init__(self):
+    self.Type = random.randint(0, len(COLORS) - 1)
+    self.Animation = tAnimation(STONE_IMAGES[ COLORS[ self.Type ] ], 0.04)
+    self.Position = (0., 0.)
+    self.Velocity = (0., 0.)
+    self.Acceleration = (0., 0.)
     self.StopPositionX = None
     self.StopPositionY = None
     self.MoveDelay = 0
@@ -23,33 +23,33 @@ class tStone:
     self.BlinkOn = 0
     self.BlinkTimeout = 0
 
-  def type( self ):
+  def type(self):
     return self.Type
 
-  def render( self, surface, base_position ):
+  def render(self, surface, base_position):
     if not self.Shown:
       return
 
-    ( x, y ) = self.Position
-    ( bx, by ) = base_position
+    (x, y) = self.Position
+    (bx, by) = base_position
     stone_surface = self.Animation.getCurrentFrame()
 
-    ( w_orig, h_orig ) = stone_surface.get_size()
+    (w_orig, h_orig) = stone_surface.get_size()
     if self.Size != 1:
-      ( w, h ) = stone_surface.get_size()
-      w = int( w * self.Size )
-      h = int( h * self.Size )
-      stone_surface = pygame.transform.scale( stone_surface, ( w, h ) )
+      (w, h) = stone_surface.get_size()
+      w = int(w * self.Size)
+      h = int(h * self.Size)
+      stone_surface = pygame.transform.scale(stone_surface, (w, h))
     else:
       w = w_orig
       h = h_orig
 
-    surface.blit( stone_surface, 
-	( int( x + bx + ( w_orig - w ) / 2 ), 
-	  int( y + by + ( h_orig - h ) / 2) ) )
+    surface.blit(stone_surface, 
+	(int(x + bx + (w_orig - w) / 2), 
+	  int(y + by + (h_orig - h) / 2)))
 
-  def step( self, seconds ):
-    self.Animation.step( seconds )
+  def step(self, seconds):
+    self.Animation.step(seconds)
 
     if self.Blinking:
       self.BlinkTimeout -= seconds
@@ -64,7 +64,7 @@ class tStone:
     if self.Shrinking:
       self.Size -= seconds * 5
       if self.Size <= 0:
-	self.setShown( 0 )
+	self.setShown(0)
 	self.Shrinking = 0
 	self.Size = 0
 
@@ -72,9 +72,9 @@ class tStone:
       self.MoveDelay -= seconds
 
     if self.MoveDelay <= 0:
-      ( x, y ) = self.Position
-      ( vx, vy ) = self.Velocity
-      ( ax, ay ) = self.Acceleration
+      (x, y) = self.Position
+      (vx, vy) = self.Velocity
+      (ax, ay) = self.Acceleration
 
       px = x
       py = y
@@ -86,7 +86,7 @@ class tStone:
       # did we just pass over our stop position?
       if self.StopPositionX is not None:
 	sx = self.StopPositionX
-	if ( (px - sx) * (x - sx) < 0 ):
+	if ((px - sx) * (x - sx) < 0):
 	  x = sx
 	  vx = 0
 	  ax = 0
@@ -96,7 +96,7 @@ class tStone:
 
       if self.StopPositionY is not None:
 	sy = self.StopPositionY
-	if ( (py - sy) * (y - sy) < 0 ):
+	if ((py - sy) * (y - sy) < 0):
 	  y = sy
 	  vy = 0
 	  ay = 0
@@ -106,60 +106,60 @@ class tStone:
 
         self.StopPosition = None
 
-      self.Position = ( x, y )
-      self.Velocity = ( vx, vy )
-      self.Acceleration = ( ax, ay )
+      self.Position = (x, y)
+      self.Velocity = (vx, vy)
+      self.Acceleration = (ax, ay)
 
   # movement control ----------------------------------------------------------
-  def setPosition( self, position ):
+  def setPosition(self, position):
     self.Position = position
 
-  def disableStopPosition( self ):
+  def disableStopPosition(self):
     self.StopPositionX = None
     self.StopPositionY = None
 
-  def setStopPosition( self, ( px, py ), play_sound_at_end ):
+  def setStopPosition(self, (px, py), play_sound_at_end):
     self.StopPositionX = px
     self.StopPositionY = py
     self.PlaySoundAtMoveEnd = play_sound_at_end
 
-  def setVelocity( self, velo ):
+  def setVelocity(self, velo):
     self.Velocity = velo
 
-  def setAcceleration( self, accel ):
+  def setAcceleration(self, accel):
     self.Acceleration = accel
 
-  def setMoveDelay( self, md ):
+  def setMoveDelay(self, md):
     self.MoveDelay = md
 
-  def isOnTheMove( self ):
-    ( vx, vy ) = self.Velocity
-    ( ax, ay ) = self.Acceleration
-    return not (vx == 0 and vy == 0 and ax == 0 and ay == 0 ) or self.Shrinking
+  def isOnTheMove(self):
+    (vx, vy) = self.Velocity
+    (ax, ay) = self.Acceleration
+    return not (vx == 0 and vy == 0 and ax == 0 and ay == 0) or self.Shrinking
 
   # Visual properties ---------------------------------------------------------
-  def startShrinking( self ):
+  def startShrinking(self):
     self.Shrinking = 1
 
-  def needsToStayAlive( self ):
+  def needsToStayAlive(self):
     return self.Shown
-  def setShown( self, shown ):
+  def setShown(self, shown):
     self.Shown = shown
 
-  def animate( self ):
-    self.Animation.setActive( 1 )
+  def animate(self):
+    self.Animation.setActive(1)
 
-  def stopAnimation( self ):
+  def stopAnimation(self):
     self.Animation.finish()
 
-  def stopAnimationQuickly( self ):
+  def stopAnimationQuickly(self):
     self.Animation.finishQuickly()
     
-  def resetAnimation( self ):
+  def resetAnimation(self):
     self.Animation.reset()
-    self.Animation.setActive( 0 )
+    self.Animation.setActive(0)
  
-  def setBlinking( self, blink ):
+  def setBlinking(self, blink):
     if blink == self.Blinking:
       return
 
@@ -171,18 +171,18 @@ class tStone:
 	self.darken()
     self.Blinking = blink
 
-  def lightUp( self):
+  def lightUp(self):
     self.LightLevel += 1
     self.updateImageArray()
 
-  def darken( self):
+  def darken(self):
     self.LightLevel -= 1
     self.updateImageArray()
 
-  def updateImageArray( self ):
+  def updateImageArray(self):
     if self.LightLevel:
-      self.Animation.setImageArray( LIT_STONE_IMAGES[ COLORS[ self.Type ] ] ) 
+      self.Animation.setImageArray(LIT_STONE_IMAGES[ COLORS[ self.Type ] ]) 
     else:
-      self.Animation.setImageArray( STONE_IMAGES[ COLORS[ self.Type ] ] ) 
+      self.Animation.setImageArray(STONE_IMAGES[ COLORS[ self.Type ] ]) 
 
 
