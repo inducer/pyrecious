@@ -1,0 +1,7 @@
+#! /bin/bash
+
+rm -f *.jpeg
+for i in raw/*.jpeg; do
+  echo $i
+  convert -geometry 640x480 -fill white -colorize 20 $i ,`basename $i`
+done

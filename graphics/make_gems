@@ -1,0 +1,54 @@
+#! /bin/bash
+
+SIZE=50
+ANISTEPS=30
+INCREMENT=$((180/ANISTEPS))
+
+set -e 
+
+function render()
+{
+  echo '#include "colors.inc"' > myparams.pov
+  echo "#declare ROTATION=$2;" >> myparams.pov
+  echo "#declare SIDE_COUNT=$3;" >> myparams.pov
+  echo "#declare INNER_SIDE_COUNT=$4;" >> myparams.pov
+  echo "#declare INNER_ROTATION=$5;" >> myparams.pov
+  echo "#declare COLOR=$6;" >> myparams.pov
+  echo "#declare SCALE_FACTOR=$7;" >> myparams.pov
+  echo "#declare GEM_AMBIENT=$8;" >> myparams.pov
+  povray +HImyparams.pov +Igems.pov +O$1 +FN +Q9 +W$SIZE +H$SIZE +A -D \
+    +UA -GA
+  rm myparams.pov
+}
+
+function animation()
+{
+  filename=$1
+  shift
+
+  index=0
+  for i in `seq 0 $INCREMENT 179`; do
+    echo "rendering $filename $index"
+    filename_index=`printf "%03d" $index`
+    render "$filename-$filename_index.png" $i "$@"
+    index=$((index+1))
+  done
+}
+
+function litanimation()
+{
+  filename=$1
+  shift
+
+  animation "gems/$filename" "$@" 0.3
+  animation "gems/$filename-lit" "$@" 0.9
+}
+
+litanimation blue 8 8 90 "blue 1 green 0.6 red 0.6" 1.2
+litanimation red 8 8 90 "red 1 blue 0.3 green 0.5" 1.2
+litanimation magenta 8 8 90 "blue 1 red 1 green 0.3" 1.2
+litanimation yellow 8 8 90 Yellow 1.2 
+litanimation green 8 8 90 Green 1.2
+litanimation pink 8 8 90 Pink 1.2
+litanimation cyan 8 8 90 Cyan 1.2
+
