@@ -23,7 +23,7 @@ function render()
 
 function animation()
 {
-  filename=$1
+  local filename=$1
   shift
 
   index=0
@@ -37,7 +37,7 @@ function animation()
 
 function litanimation()
 {
-  filename=$1
+  local filename=$1
   shift
 
   animation "gems/$filename" "$@" 0.3
