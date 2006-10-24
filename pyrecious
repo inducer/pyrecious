@@ -403,12 +403,20 @@ class tOpponentTimedGame(tGame):
   def __init__(self):
     tGame.__init__(self)
     self.Level = 0
-    self.nextLevel()
 
     self.LevelLabel = tLabel((10,130), "")
     self.StonesLabel = tLabel((10,150), "")
     self.OpponentWarningLabel = tLabel((10,170), "")
+    self.nextLevel()
     UI.add(self.LevelLabel)
+
+  def gameOver(self):
+    self.GameEnded = True
+    self.Field.blowUp()
+    tTimer(3, self.end )
+    SOUND_GAME_OVER.get().play()
+
+    self.MovesLeftLabel.setText("GAME OVER")
 
   def nextLevel(self):
     self.Level += 1
@@ -423,12 +431,14 @@ class tOpponentTimedGame(tGame):
 
   def step(self, seconds):
     if self.Field.isUIEnabled():
+      if len(self.Field.hints()) == 0:
+        self.gameOver()
       self.OpponentTimeCounter -= seconds
       if self.OpponentTimeCounter < 0 and len(self.Field.hints()) > 0:
 	self.OpponentMove = True
 	self.Field.executeMove(self.Field.hints()[ 0 ])
 
-  def updateLabels():
+  def updateLabels(self):
     self.LevelLabel.setText("Level: %d" % self.Level)
     self.LevelLabel.setText("Level: %d" % self.Level)
 
