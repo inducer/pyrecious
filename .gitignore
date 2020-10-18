@@ -1,3 +1,5 @@
 graphics/gems/*.png
 graphics/backdrops/,*
 Memory.Log
+*.pyc
+*~
