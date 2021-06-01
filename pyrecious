@@ -11,83 +11,84 @@ from field import *
 from music import *
 
 
-
 # Misc. stuff -----------------------------------------------------------------
 class tEyeCandy:
-  def __init__(self, field):
-    self.EyeCandying = 0
-    self.TimeToNextCandy = 3
-    self.Field = field
-    self.CandyStepTime = 0.02
+    def __init__(self, field):
+        self.EyeCandying = 0
+        self.TimeToNextCandy = 3
+        self.Field = field
+        self.CandyStepTime = 0.02
 
-  def step(self, seconds):
-    self.TimeToNextCandy -= seconds
-    if self.TimeToNextCandy < 0:
-      self.TimeToNextCandy = 60
-      self.EyeCandying = self.Field.isActive()
-      self.EyeCandyRow = self.Field.height() - 1
-      self.TimeToNextCandyStep = self.CandyStepTime
+    def step(self, seconds):
+        self.TimeToNextCandy -= seconds
+        if self.TimeToNextCandy < 0:
+            self.TimeToNextCandy = 60
+            self.EyeCandying = self.Field.isActive()
+            self.EyeCandyRow = self.Field.height() - 1
+            self.TimeToNextCandyStep = self.CandyStepTime
 
-    if self.EyeCandying:
-      self.TimeToNextCandyStep -= seconds
-      if self.TimeToNextCandyStep < 0:
-        self.TimeToNextCandyStep = self.CandyStepTime
-        y = self.EyeCandyRow
-        x = 0
-        some_done = 0
+        if self.EyeCandying:
+            self.TimeToNextCandyStep -= seconds
+            if self.TimeToNextCandyStep < 0:
+                self.TimeToNextCandyStep = self.CandyStepTime
+                y = self.EyeCandyRow
+                x = 0
+                some_done = 0
 
-        # light up current stones
-        for x in range(0, self.Field.width()):
-          if 0 <= y < self.Field.height():
-            stone = self.Field.field(x, y)
-            stone.lightUp()
-            some_done = 1
+                # light up current stones
+                for x in range(0, self.Field.width()):
+                    if 0 <= y < self.Field.height():
+                        stone = self.Field.field(x, y)
+                        stone.lightUp()
+                        some_done = 1
 
-          y += 1
+                    y += 1
 
-        # darken previous stones
-        y = self.EyeCandyRow + 3
+                # darken previous stones
+                y = self.EyeCandyRow + 3
 
-        for x in range(0, self.Field.width()):
-          if 0 <= y < self.Field.height():
-            stone = self.Field.field(x, y)
-            stone.darken()
-            some_done = 1
+                for x in range(0, self.Field.width()):
+                    if 0 <= y < self.Field.height():
+                        stone = self.Field.field(x, y)
+                        stone.darken()
+                        some_done = 1
 
-          y += 1
+                    y += 1
 
-        # maintain state
-        if not some_done:
-          self.EyeCandying = 0
+                # maintain state
+                if not some_done:
+                    self.EyeCandying = 0
 
-        self.EyeCandyRow -= 1
-
-
+                self.EyeCandyRow -= 1
 
 
 class tBackdrop:
-  def __init__(self):
-    def prepareBackdrop(name):
-      self.Surface = loadImage(
-          os.path.join("backdrops", name))
-      panel = loadImage('panel.png')
-      self.Surface.blit(panel, (0,0))
-      return self.Surface.convert()
+    def __init__(self):
+        def prepareBackdrop(name):
+            self.Surface = loadImage(os.path.join("backdrops", name))
+            panel = loadImage("panel.png")
+            self.Surface.blit(panel, (0, 0))
+            return self.Surface.convert()
 
-    self.Backdrops = list(map(
-        prepareBackdrop,
-        [x for x in os.listdir(os.path.join("graphics", "backdrops")) if x[ -5: ] == ".jpeg"]))
-    self.CurrentIndex = -1
-    next(self)
+        self.Backdrops = list(
+            map(
+                prepareBackdrop,
+                [
+                    x
+                    for x in os.listdir(os.path.join("graphics", "backdrops"))
+                    if x[-5:] == ".jpeg"
+                ],
+            )
+        )
+        self.CurrentIndex = -1
+        next(self)
 
-  def __next__(self):
-    self.CurrentIndex = (self.CurrentIndex + 1) % len(self.Backdrops)
-    self.Surface = self.Backdrops[ self.CurrentIndex ]
+    def __next__(self):
+        self.CurrentIndex = (self.CurrentIndex + 1) % len(self.Backdrops)
+        self.Surface = self.Backdrops[self.CurrentIndex]
 
-  def render(self, surface):
-    surface.blit(self.Surface, (0, 0))
-
-
+    def render(self, surface):
+        surface.blit(self.Surface, (0, 0))
 
 
 # Game logic ------------------------------------------------------------------
@@ -96,461 +97,470 @@ BACKDROP = tReference(None)
 UI = None
 
 
-
-
 class tGame:
-  def __init__(self):
-    if CURRENT_GAME.get() is not None:
-      CURRENT_GAME.get().end()
-    CURRENT_GAME.set(self)
-    UI.newLevel()
+    def __init__(self):
+        if CURRENT_GAME.get() is not None:
+            CURRENT_GAME.get().end()
+        CURRENT_GAME.set(self)
+        UI.newLevel()
 
-    self.makeNewField()
+        self.makeNewField()
 
-  def end(self):
-    CURRENT_GAME.set(None)
-    UI.discardLevel()
+    def end(self):
+        CURRENT_GAME.set(None)
+        UI.discardLevel()
 
-  def makeNewField(self):
-    self.Field = tPlayingField((190, 5), 8, 8)
-    self.Field.addHintsDoneHook(self.hintsDoneHook)
-    self.Field.addMoveDoneHook(self.moveDoneHook)
-    self.Field.newGame()
-    self.EyeCandy = tEyeCandy(self.Field)
-    UI.add(self.Field)
-    UI.add(self.EyeCandy)
+    def makeNewField(self):
+        self.Field = tPlayingField((190, 5), 8, 8)
+        self.Field.addHintsDoneHook(self.hintsDoneHook)
+        self.Field.addMoveDoneHook(self.moveDoneHook)
+        self.Field.newGame()
+        self.EyeCandy = tEyeCandy(self.Field)
+        UI.add(self.Field)
+        UI.add(self.EyeCandy)
 
-  def hintsDoneHook(self):
-    pass
+    def hintsDoneHook(self):
+        pass
 
-  def moveDoneHook(self, stone_count):
-    pass
-
-
+    def moveDoneHook(self, stone_count):
+        pass
 
 
 class tSinglePlayerUntimedGame(tGame):
-  def __init__(self):
-    tGame.__init__(self)
-    self.Score = 0
-    self.ScoreLabel = tLabel((10,130), "")
-    self.FloatScoreLabel = tFloatUpAndFadeLabel((70,130))
-    self.MovesLeftLabel = tLabel((10,150), "")
+    def __init__(self):
+        tGame.__init__(self)
+        self.Score = 0
+        self.ScoreLabel = tLabel((10, 130), "")
+        self.FloatScoreLabel = tFloatUpAndFadeLabel((70, 130))
+        self.MovesLeftLabel = tLabel((10, 150), "")
 
-    self.GameEnded = False
+        self.GameEnded = False
 
-    self.changePlayerScore(0)
+        self.changePlayerScore(0)
 
-    UI.add(self.ScoreLabel)
-    UI.add(self.FloatScoreLabel)
-    UI.add(self.MovesLeftLabel)
-    UI.add(tButton((10,380), 150, 30, "Hint", self.showHint))
+        UI.add(self.ScoreLabel)
+        UI.add(self.FloatScoreLabel)
+        UI.add(self.MovesLeftLabel)
+        UI.add(tButton((10, 380), 150, 30, "Hint", self.showHint))
 
-  def gameOver(self):
-    self.GameEnded = True
-    self.Field.blowUp()
-    tTimer(3, self.end )
-    SOUND_GAME_OVER.get().play()
+    def gameOver(self):
+        self.GameEnded = True
+        self.Field.blowUp()
+        tTimer(3, self.end)
+        SOUND_GAME_OVER.get().play()
 
-    self.MovesLeftLabel.setText("GAME OVER")
+        self.MovesLeftLabel.setText("GAME OVER")
 
-  def changePlayerScore(self, score_addition):
-    self.Score += score_addition
-    self.ScoreLabel.setText("Score: %d" % self.Score)
-    if score_addition != 0:
-      self.FloatScoreLabel.floatText(str(score_addition))
-    if score_addition > 1000:
-      SOUND_EXCELLENT.get().play()
+    def changePlayerScore(self, score_addition):
+        self.Score += score_addition
+        self.ScoreLabel.setText("Score: %d" % self.Score)
+        if score_addition != 0:
+            self.FloatScoreLabel.floatText(str(score_addition))
+        if score_addition > 1000:
+            SOUND_EXCELLENT.get().play()
 
-  def showHint(self):
-    if self.Field.showHint():
-      self.changePlayerScore(-1000)
-      SOUND_HINT.get().play()
+    def showHint(self):
+        if self.Field.showHint():
+            self.changePlayerScore(-1000)
+            SOUND_HINT.get().play()
 
-  def hintsDoneHook(self):
-    tGame.hintsDoneHook(self)
-    if self.GameEnded:
-      return
+    def hintsDoneHook(self):
+        tGame.hintsDoneHook(self)
+        if self.GameEnded:
+            return
 
-    number = len(self.Field.hints())
-    if number > 0:
-      self.MovesLeftLabel.setText("%d moves left" % number)
-    elif number < 0:
-      self.MovesLeftLabel.setText("")
-    else:
-      self.gameOver()
+        number = len(self.Field.hints())
+        if number > 0:
+            self.MovesLeftLabel.setText("%d moves left" % number)
+        elif number < 0:
+            self.MovesLeftLabel.setText("")
+        else:
+            self.gameOver()
 
-  def moveDoneHook(self, stone_count):
-    tGame.moveDoneHook(self, stone_count)
-    if self.GameEnded:
-      return
+    def moveDoneHook(self, stone_count):
+        tGame.moveDoneHook(self, stone_count)
+        if self.GameEnded:
+            return
 
-    if not self.Field.hasGameBegun():
-      return
+        if not self.Field.hasGameBegun():
+            return
 
-    self.MovesLeftLabel.setText("")
-    score_change = stone_count * stone_count * 10
-    self.changePlayerScore(score_change)
-
-
+        self.MovesLeftLabel.setText("")
+        score_change = stone_count * stone_count * 10
+        self.changePlayerScore(score_change)
 
 
 class tSinglePlayerTimedGame(tSinglePlayerUntimedGame):
-  def __init__(self):
-    tSinglePlayerUntimedGame.__init__(self)
-    self.Level = 0
-    self.LevelLabel = tLabel((10,190), "")
-    self.StonesToDestroyLabel = tLabel((10,210), "")
-    self.TimeLeftLabel = tLabel((10,250), "")
-    self.OldField = None
-
-    UI.add(self.LevelLabel)
-    UI.add(self.StonesToDestroyLabel)
-    UI.add(self.TimeLeftLabel)
-
-    self.nextLevel()
-
-  def calculateStonesForLevel(self, level):
-    result = 22
-    result += min(30, level * 3)
-    result += max(0, level - 10)
-    return result
-
-  def nextLevel(self):
-    self.Level += 1
-    self.StonesToDestroy = self.calculateStonesForLevel(self.Level)
-    next(BACKDROP.get())
-
-    self.Time = 45
-    self.updateLabels()
-
-  def updateLabels(self):
-    self.LevelLabel.setText("Level: %d" % self.Level)
-    self.StonesToDestroyLabel.setText("Stones: %d" % self.StonesToDestroy)
-    if not self.GameEnded:
-      self.TimeLeftLabel.setText("Time: %.2f" % self.Time)
-    else:
-      self.TimeLeftLabel.setText("")
-
-  def step(self, seconds):
-    if self.Field.isUIEnabled():
-      self.Time -= seconds
-      if self.Time <= 0 and self.StonesToDestroy > 0:
-        self.gameOver()
-      self.updateLabels()
-
-  def moveDoneHook(self, stone_count):
-    tSinglePlayerUntimedGame.moveDoneHook(self, stone_count)
-
-    if self.GameEnded or not self.Field.hasGameBegun():
-      return
-
-    self.StonesToDestroy -= stone_count
-    self.updateLabels()
-    if self.StonesToDestroy <= 0:
-
-      if self.OldField is not None:
-        UI.remove(self.OldField)
-
-      self.OldField = self.Field
-      self.OldField.blowUp()
-      self.OldField.clearHintsDoneHooks()
-
-      UI.remove(self.EyeCandy)
-      self.EyeCandy = None
-
-      def startNextLevel():
-        self.makeNewField()
-        self.nextLevel()
-
-      def clearOldField():
-        UI.remove(self.OldField)
+    def __init__(self):
+        tSinglePlayerUntimedGame.__init__(self)
+        self.Level = 0
+        self.LevelLabel = tLabel((10, 190), "")
+        self.StonesToDestroyLabel = tLabel((10, 210), "")
+        self.TimeLeftLabel = tLabel((10, 250), "")
         self.OldField = None
 
-      tTimer(0.75, startNextLevel)
-      tTimer(3, clearOldField)
+        UI.add(self.LevelLabel)
+        UI.add(self.StonesToDestroyLabel)
+        UI.add(self.TimeLeftLabel)
 
+        self.nextLevel()
 
+    def calculateStonesForLevel(self, level):
+        result = 22
+        result += min(30, level * 3)
+        result += max(0, level - 10)
+        return result
+
+    def nextLevel(self):
+        self.Level += 1
+        self.StonesToDestroy = self.calculateStonesForLevel(self.Level)
+        next(BACKDROP.get())
+
+        self.Time = 45
+        self.updateLabels()
+
+    def updateLabels(self):
+        self.LevelLabel.setText("Level: %d" % self.Level)
+        self.StonesToDestroyLabel.setText("Stones: %d" % self.StonesToDestroy)
+        if not self.GameEnded:
+            self.TimeLeftLabel.setText("Time: %.2f" % self.Time)
+        else:
+            self.TimeLeftLabel.setText("")
+
+    def step(self, seconds):
+        if self.Field.isUIEnabled():
+            self.Time -= seconds
+            if self.Time <= 0 and self.StonesToDestroy > 0:
+                self.gameOver()
+            self.updateLabels()
+
+    def moveDoneHook(self, stone_count):
+        tSinglePlayerUntimedGame.moveDoneHook(self, stone_count)
+
+        if self.GameEnded or not self.Field.hasGameBegun():
+            return
+
+        self.StonesToDestroy -= stone_count
+        self.updateLabels()
+        if self.StonesToDestroy <= 0:
+
+            if self.OldField is not None:
+                UI.remove(self.OldField)
+
+            self.OldField = self.Field
+            self.OldField.blowUp()
+            self.OldField.clearHintsDoneHooks()
+
+            UI.remove(self.EyeCandy)
+            self.EyeCandy = None
+
+            def startNextLevel():
+                self.makeNewField()
+                self.nextLevel()
+
+            def clearOldField():
+                UI.remove(self.OldField)
+                self.OldField = None
+
+            tTimer(0.75, startNextLevel)
+            tTimer(3, clearOldField)
 
 
 class tOpponentMoveByMoveGame(tGame):
-  def __init__(self):
-    tGame.__init__(self)
-    self.OpponentsTurn = False
-    self.PlayerStones = 0
-    self.OpponentStones = 0
-    self.EndStones = 40
+    def __init__(self):
+        tGame.__init__(self)
+        self.OpponentsTurn = False
+        self.PlayerStones = 0
+        self.OpponentStones = 0
+        self.EndStones = 40
 
-    self.TurnLabel = tLabel((10,130), "")
-    self.PlayerStonesLabel = tLabel((10,150), "")
-    self.OpponentStonesLabel = tLabel((10,170), "")
-    self.EndLabel = tLabel((10,190),
-        "Playing to %d" % self.EndStones)
+        self.TurnLabel = tLabel((10, 130), "")
+        self.PlayerStonesLabel = tLabel((10, 150), "")
+        self.OpponentStonesLabel = tLabel((10, 170), "")
+        self.EndLabel = tLabel((10, 190), "Playing to %d" % self.EndStones)
 
-    UI.add(self.TurnLabel)
-    UI.add(self.PlayerStonesLabel)
-    UI.add(self.OpponentStonesLabel)
-    UI.add(self.EndLabel)
+        UI.add(self.TurnLabel)
+        UI.add(self.PlayerStonesLabel)
+        UI.add(self.OpponentStonesLabel)
+        UI.add(self.EndLabel)
 
-    self.GameEnded = False
-    self.updateLabels()
+        self.GameEnded = False
+        self.updateLabels()
 
-  def gameOver(self):
-    self.GameEnded = True
-    self.Field.blowUp()
-    tTimer(3, self.end)
-    SOUND_GAME_OVER.get().play()
-    self.updateLabels()
+    def gameOver(self):
+        self.GameEnded = True
+        self.Field.blowUp()
+        tTimer(3, self.end)
+        SOUND_GAME_OVER.get().play()
+        self.updateLabels()
 
-  def updateLabels(self):
-    if self.GameEnded:
-      if self.PlayerStones > self.OpponentStones:
-        turn_text = "You win"
-        max_stones = self.PlayerStones
-      else:
-        turn_text = "Opponent wins"
-        max_stones = self.OpponentStones
-      if max_stones < self.EndStones:
-        turn_text = "GAME OVER"
-    else:
-      if self.OpponentsTurn:
-        turn_text = "Opponent's turn"
-      else:
-        turn_text = "Your turn"
-    self.TurnLabel.setText(turn_text)
-    self.PlayerStonesLabel.setText(
-        "You: %d" % self.PlayerStones)
-    self.OpponentStonesLabel.setText(
-        "Opponent: %d" % self.OpponentStones)
+    def updateLabels(self):
+        if self.GameEnded:
+            if self.PlayerStones > self.OpponentStones:
+                turn_text = "You win"
+                max_stones = self.PlayerStones
+            else:
+                turn_text = "Opponent wins"
+                max_stones = self.OpponentStones
+            if max_stones < self.EndStones:
+                turn_text = "GAME OVER"
+        else:
+            if self.OpponentsTurn:
+                turn_text = "Opponent's turn"
+            else:
+                turn_text = "Your turn"
+        self.TurnLabel.setText(turn_text)
+        self.PlayerStonesLabel.setText("You: %d" % self.PlayerStones)
+        self.OpponentStonesLabel.setText("Opponent: %d" % self.OpponentStones)
 
-  def hintsDoneHook(self):
-    tGame.hintsDoneHook(self)
-    if self.GameEnded:
-      return
+    def hintsDoneHook(self):
+        tGame.hintsDoneHook(self)
+        if self.GameEnded:
+            return
 
-    self.updateLabels()
+        self.updateLabels()
 
-    hints = self.Field.hints()
-    number = len(hints)
-    if number == 0:
-      self.gameOver()
-      return
+        hints = self.Field.hints()
+        number = len(hints)
+        if number == 0:
+            self.gameOver()
+            return
 
-    if self.OpponentsTurn:
-      def evaluateMove(move):
-        # This is buggy since we can't really guess the color of
-        # new stones
-        ((start_x,start_y), (end_x,end_y)) = move
-        field = copyField(self.Field.Field)
-        swapStones(field, start_x, start_y, end_x, end_y)
-        destroyed_stones = 0
+        if self.OpponentsTurn:
 
-        quitflag = False
-        while not quitflag:
-          candidates = findDestructionCandidates(field)
-          destroyStones(field, candidates)
-          destroyed_stones += len(candidates)
-          quitflag = len(candidates) == 0
+            def evaluateMove(move):
+                # This is buggy since we can't really guess the color of
+                # new stones
+                ((start_x, start_y), (end_x, end_y)) = move
+                field = copyField(self.Field.Field)
+                swapStones(field, start_x, start_y, end_x, end_y)
+                destroyed_stones = 0
 
-        return destroyed_stones
+                quitflag = False
+                while not quitflag:
+                    candidates = findDestructionCandidates(field)
+                    destroyStones(field, candidates)
+                    destroyed_stones += len(candidates)
+                    quitflag = len(candidates) == 0
 
-      best_move = hints[ 0 ]
-      best_move_stones = evaluateMove(best_move)
+                return destroyed_stones
 
-      for move in hints:
-        stones = evaluateMove(move)
-        if stones > best_move_stones:
-          best_move = move
-          best_move_stones = stones
+            best_move = hints[0]
+            best_move_stones = evaluateMove(best_move)
 
-      self.Field.executeMove(best_move)
+            for move in hints:
+                stones = evaluateMove(move)
+                if stones > best_move_stones:
+                    best_move = move
+                    best_move_stones = stones
 
-  def moveDoneHook(self, stone_count):
-    tGame.moveDoneHook(self, stone_count)
+            self.Field.executeMove(best_move)
 
-    if self.GameEnded or not self.Field.hasGameBegun():
-      return
+    def moveDoneHook(self, stone_count):
+        tGame.moveDoneHook(self, stone_count)
 
-    if self.OpponentsTurn:
-      self.OpponentStones += stone_count
-      if self.OpponentStones >= self.EndStones:
-        self.gameOver()
-    else:
-      self.PlayerStones += stone_count
-      if self.PlayerStones >= self.EndStones:
-        self.gameOver()
+        if self.GameEnded or not self.Field.hasGameBegun():
+            return
 
-    self.updateLabels()
+        if self.OpponentsTurn:
+            self.OpponentStones += stone_count
+            if self.OpponentStones >= self.EndStones:
+                self.gameOver()
+        else:
+            self.PlayerStones += stone_count
+            if self.PlayerStones >= self.EndStones:
+                self.gameOver()
 
-    if self.GameEnded:
-      return
+        self.updateLabels()
 
-    self.OpponentsTurn = not self.OpponentsTurn
+        if self.GameEnded:
+            return
 
-    if self.OpponentsTurn:
-      self.Field.disableUI()
-      self.TurnLabel.setText("Computing...")
-    else:
-      self.Field.enableUI()
-      self.updateLabels()
+        self.OpponentsTurn = not self.OpponentsTurn
 
-
+        if self.OpponentsTurn:
+            self.Field.disableUI()
+            self.TurnLabel.setText("Computing...")
+        else:
+            self.Field.enableUI()
+            self.updateLabels()
 
 
 class tOpponentTimedGame(tGame):
-  def __init__(self):
-    tGame.__init__(self)
-    self.Level = 0
+    def __init__(self):
+        tGame.__init__(self)
+        self.Level = 0
 
-    self.LevelLabel = tLabel((10,130), "")
-    self.StonesLabel = tLabel((10,150), "")
-    self.OpponentWarningLabel = tLabel((10,170), "")
-    self.nextLevel()
-    UI.add(self.LevelLabel)
+        self.LevelLabel = tLabel((10, 130), "")
+        self.StonesLabel = tLabel((10, 150), "")
+        self.OpponentWarningLabel = tLabel((10, 170), "")
+        self.nextLevel()
+        UI.add(self.LevelLabel)
 
-  def gameOver(self):
-    self.GameEnded = True
-    self.Field.blowUp()
-    tTimer(3, self.end )
-    SOUND_GAME_OVER.get().play()
+    def gameOver(self):
+        self.GameEnded = True
+        self.Field.blowUp()
+        tTimer(3, self.end)
+        SOUND_GAME_OVER.get().play()
 
-    self.MovesLeftLabel.setText("GAME OVER")
+        self.MovesLeftLabel.setText("GAME OVER")
 
-  def nextLevel(self):
-    self.Level += 1
-    self.StonesToDestroy = 30
-    next(BACKDROP.get())
+    def nextLevel(self):
+        self.Level += 1
+        self.StonesToDestroy = 30
+        next(BACKDROP.get())
 
-    self.OpponentTime = 3 + 9 * math.exp(- (self.Level - 1.) / 10.)
-    self.OpponentTimeCounter = self.OpponentTime
-    self.OpponentMove = False
+        self.OpponentTime = 3 + 9 * math.exp(-(self.Level - 1.0) / 10.0)
+        self.OpponentTimeCounter = self.OpponentTime
+        self.OpponentMove = False
 
-    self.updateLabels()
+        self.updateLabels()
 
-  def step(self, seconds):
-    if self.Field.isUIEnabled():
-      if len(self.Field.hints()) == 0:
-        self.gameOver()
-      self.OpponentTimeCounter -= seconds
-      if self.OpponentTimeCounter < 0 and len(self.Field.hints()) > 0:
-        self.OpponentMove = True
-        self.Field.executeMove(self.Field.hints()[ 0 ])
+    def step(self, seconds):
+        if self.Field.isUIEnabled():
+            if len(self.Field.hints()) == 0:
+                self.gameOver()
+            self.OpponentTimeCounter -= seconds
+            if self.OpponentTimeCounter < 0 and len(self.Field.hints()) > 0:
+                self.OpponentMove = True
+                self.Field.executeMove(self.Field.hints()[0])
 
-  def updateLabels(self):
-    self.LevelLabel.setText("Level: %d" % self.Level)
-    self.LevelLabel.setText("Level: %d" % self.Level)
-
-
+    def updateLabels(self):
+        self.LevelLabel.setText("Level: %d" % self.Level)
+        self.LevelLabel.setText("Level: %d" % self.Level)
 
 
 # User Interface --------------------------------------------------------------
 FULLSCREEN = tReference(False)
 
+
 def showNewGame():
-  UI.newLevel()
-  UI.removeAllEventReceivers()
-  UI.add(tDialogBox((50, 30), 310, 250))
-  UI.add(tLabel((60,40), "New game"))
-  UI.add(tButton((60, 70 + 40 * 0), 290, 30,
-    "Single player untimed",
-    lambda: UI.quit("single_untimed")))
-  UI.add(tButton((60, 70 + 40 * 1), 290, 30,
-    "Single player timed",
-    lambda: UI.quit("single_timed")))
-  UI.add(tButton((60, 70 + 40 * 2), 290, 30,
-    "Move-by-move opponent game",
-    lambda: UI.quit("opponent_move")))
-  UI.add(tButton((60, 70 + 40 * 3), 290, 30,
-    "Timed opponent game",
-    lambda: UI.quit("opponent_timed")))
-  UI.add(tButton((60, 70 + 40 * 4 + 10), 290, 30,
-    "Forget that",
-    lambda: UI.quit()))
-  game_type = UI.loop()
-  UI.discardLevel()
+    UI.newLevel()
+    UI.removeAllEventReceivers()
+    UI.add(tDialogBox((50, 30), 310, 250))
+    UI.add(tLabel((60, 40), "New game"))
+    UI.add(
+        tButton(
+            (60, 70 + 40 * 0),
+            290,
+            30,
+            "Single player untimed",
+            lambda: UI.quit("single_untimed"),
+        )
+    )
+    UI.add(
+        tButton(
+            (60, 70 + 40 * 1),
+            290,
+            30,
+            "Single player timed",
+            lambda: UI.quit("single_timed"),
+        )
+    )
+    UI.add(
+        tButton(
+            (60, 70 + 40 * 2),
+            290,
+            30,
+            "Move-by-move opponent game",
+            lambda: UI.quit("opponent_move"),
+        )
+    )
+    UI.add(
+        tButton(
+            (60, 70 + 40 * 3),
+            290,
+            30,
+            "Timed opponent game",
+            lambda: UI.quit("opponent_timed"),
+        )
+    )
+    UI.add(tButton((60, 70 + 40 * 4 + 10), 290, 30, "Forget that", lambda: UI.quit()))
+    game_type = UI.loop()
+    UI.discardLevel()
 
-  if game_type == "single_untimed":
-    UI.add(tSinglePlayerUntimedGame())
-  if game_type == "single_timed":
-    UI.add(tSinglePlayerTimedGame())
-  if game_type == "opponent_move":
-    UI.add(tOpponentMoveByMoveGame())
-  if game_type == "opponent_timed":
-    UI.add(tOpponentTimedGame())
-
-
-
-
+    if game_type == "single_untimed":
+        UI.add(tSinglePlayerUntimedGame())
+    if game_type == "single_timed":
+        UI.add(tSinglePlayerTimedGame())
+    if game_type == "opponent_move":
+        UI.add(tOpponentMoveByMoveGame())
+    if game_type == "opponent_timed":
+        UI.add(tOpponentTimedGame())
 
 
 def toggleFullscreen(value):
-  pygame.display.toggle_fullscreen()
-  FULLSCREEN.set(not FULLSCREEN.get())
-
-
+    pygame.display.toggle_fullscreen()
+    FULLSCREEN.set(not FULLSCREEN.get())
 
 
 def showOptions():
-  UI.newLevel()
-  UI.removeAllEventReceivers()
-  UI.add(tDialogBox((100, 50), 250, 220))
-  UI.add(tLabel((110, 60), "Game options"))
-  UI.add(tToggleButton((110, 90 + 40 * 0), 230, 30,
-    "Toggle fullscreen", FULLSCREEN.get(),
-    toggleFullscreen))
-  UI.add(tToggleButton((110, 90 + 40 * 1 + 10), 230, 30,
-    "Toggle music", MUSIC_ENABLED,
-    setMusicEnabled))
-  UI.add(tButton((110, 90 + 40 * 2 + 10 * 1), 230, 30,
-    "Next tune",
-    nextMusicTune))
-  UI.add(tButton((110, 90 + 40 * 3 + 10 * 2), 230, 30,
-    "Close",
-    lambda: UI.quit()))
-  UI.loop()
-  UI.discardLevel()
-
-
+    UI.newLevel()
+    UI.removeAllEventReceivers()
+    UI.add(tDialogBox((100, 50), 250, 220))
+    UI.add(tLabel((110, 60), "Game options"))
+    UI.add(
+        tToggleButton(
+            (110, 90 + 40 * 0),
+            230,
+            30,
+            "Toggle fullscreen",
+            FULLSCREEN.get(),
+            toggleFullscreen,
+        )
+    )
+    UI.add(
+        tToggleButton(
+            (110, 90 + 40 * 1 + 10),
+            230,
+            30,
+            "Toggle music",
+            MUSIC_ENABLED,
+            setMusicEnabled,
+        )
+    )
+    UI.add(tButton((110, 90 + 40 * 2 + 10 * 1), 230, 30, "Next tune", nextMusicTune))
+    UI.add(tButton((110, 90 + 40 * 3 + 10 * 2), 230, 30, "Close", lambda: UI.quit()))
+    UI.loop()
+    UI.discardLevel()
 
 
 def run():
-  # initialization
-  global UI
-  UI = tUserInterface()
+    # initialization
+    global UI
+    UI = tUserInterface()
 
-  random.seed()
-  pygame.init()
-  pygame.display.set_caption('MyPyrecious')
-  screen = pygame.display.set_mode((640, 480))
-  pygame.mouse.set_visible(1)
-  UI.setScreen(screen)
+    random.seed()
+    pygame.init()
+    pygame.display.set_caption("MyPyrecious")
+    screen = pygame.display.set_mode((640, 480))
+    pygame.mouse.set_visible(1)
+    UI.setScreen(screen)
 
-  # load stuff
-  loadStones()
-  loadSounds()
-  loadFonts()
+    # load stuff
+    loadStones()
+    loadSounds()
+    loadFonts()
 
-  # set up and start music
-  nextMusicTune()
-  pygame.mixer.music.set_endevent(EVENT_MUSIC_END);
-
-  def noticeMusicEnded(event):
+    # set up and start music
     nextMusicTune()
+    pygame.mixer.music.set_endevent(EVENT_MUSIC_END)
 
-  UI.installEventHandler(EVENT_MUSIC_END, noticeMusicEnded)
+    def noticeMusicEnded(event):
+        nextMusicTune()
 
-  # build ui
-  BACKDROP.set(tBackdrop())
-  UI.add(BACKDROP.get())
-  UI.add(tButton((10,300), 150, 30, "New game", showNewGame))
-  UI.add(tButton((10,340), 150, 30, "Options", showOptions))
-  UI.add(tButton((10,425), 150, 30, "Quit", UI.quit))
-  UI.addList(SOUND_MANAGERS)
+    UI.installEventHandler(EVENT_MUSIC_END, noticeMusicEnded)
 
-  # loop
-  UI.loop()
+    # build ui
+    BACKDROP.set(tBackdrop())
+    UI.add(BACKDROP.get())
+    UI.add(tButton((10, 300), 150, 30, "New game", showNewGame))
+    UI.add(tButton((10, 340), 150, 30, "Options", showOptions))
+    UI.add(tButton((10, 425), 150, 30, "Quit", UI.quit))
+    UI.addList(SOUND_MANAGERS)
 
+    # loop
+    UI.loop()
 
 
 run()
-
