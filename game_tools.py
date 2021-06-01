@@ -1,4 +1,4 @@
-import pygame 
+import pygame
 
 # Functions -------------------------------------------------------------------
 def getTime():
@@ -30,7 +30,7 @@ class tAnimation:
     self.ImageArray = image_array
     self.FrameDelay = delay
     self.Time = 0
-    self.FrameIndex = 0 
+    self.FrameIndex = 0
     self.Active = 0
     self.OneShot = 0
     self.Quickly = 0
@@ -40,17 +40,17 @@ class tAnimation:
       self.Time += seconds
       delay = self.FrameDelay
       if self.Quickly:
-	delay /= 2
+        delay /= 2
       while self.Time > delay:
-	self.FrameIndex = self.FrameIndex + 1 
-	if self.FrameIndex >= len(self.ImageArray):
-	  self.FrameIndex = 0
-	  if self.OneShot:
-	    self.Active = 0
-	    self.Quickly = 0
-	  break
-	self.Time -= delay
-    
+        self.FrameIndex = self.FrameIndex + 1
+        if self.FrameIndex >= len(self.ImageArray):
+          self.FrameIndex = 0
+          if self.OneShot:
+            self.Active = 0
+            self.Quickly = 0
+          break
+        self.Time -= delay
+
   def getCurrentFrame(self):
     return self.ImageArray[ self.FrameIndex ]
 

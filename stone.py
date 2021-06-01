@@ -44,9 +44,9 @@ class tStone:
       w = w_orig
       h = h_orig
 
-    surface.blit(stone_surface, 
-	(int(x + bx + (w_orig - w) / 2), 
-	  int(y + by + (h_orig - h) / 2)))
+    surface.blit(stone_surface,
+        (int(x + bx + (w_orig - w) / 2),
+          int(y + by + (h_orig - h) / 2)))
 
   def step(self, seconds):
     self.Animation.step(seconds)
@@ -54,19 +54,19 @@ class tStone:
     if self.Blinking:
       self.BlinkTimeout -= seconds
       while self.BlinkTimeout < 0:
-	self.BlinkTimeout += 0.5
-	self.BlinkOn = 1 - self.BlinkOn
-	if self.BlinkOn:
-	  self.lightUp()
-	else:
-	  self.darken()
+        self.BlinkTimeout += 0.5
+        self.BlinkOn = 1 - self.BlinkOn
+        if self.BlinkOn:
+          self.lightUp()
+        else:
+          self.darken()
 
     if self.Shrinking:
       self.Size -= seconds * 5
       if self.Size <= 0:
-	self.setShown(0)
-	self.Shrinking = 0
-	self.Size = 0
+        self.setShown(0)
+        self.Shrinking = 0
+        self.Size = 0
 
     if self.MoveDelay > 0:
       self.MoveDelay -= seconds
@@ -85,24 +85,24 @@ class tStone:
 
       # did we just pass over our stop position?
       if self.StopPositionX is not None:
-	sx = self.StopPositionX
-	if ((px - sx) * (x - sx) < 0):
-	  x = sx
-	  vx = 0
-	  ax = 0
-	  if self.PlaySoundAtMoveEnd:
-	    SOUNDMGR_DROP.get().play()
-	  self.StopPositionX = None
+        sx = self.StopPositionX
+        if ((px - sx) * (x - sx) < 0):
+          x = sx
+          vx = 0
+          ax = 0
+          if self.PlaySoundAtMoveEnd:
+            SOUNDMGR_DROP.get().play()
+          self.StopPositionX = None
 
       if self.StopPositionY is not None:
-	sy = self.StopPositionY
-	if ((py - sy) * (y - sy) < 0):
-	  y = sy
-	  vy = 0
-	  ay = 0
-	  if self.PlaySoundAtMoveEnd:
-	    SOUNDMGR_DROP.get().play()
-	  self.StopPositionY = None
+        sy = self.StopPositionY
+        if ((py - sy) * (y - sy) < 0):
+          y = sy
+          vy = 0
+          ay = 0
+          if self.PlaySoundAtMoveEnd:
+            SOUNDMGR_DROP.get().play()
+          self.StopPositionY = None
 
         self.StopPosition = None
 
@@ -118,7 +118,8 @@ class tStone:
     self.StopPositionX = None
     self.StopPositionY = None
 
-  def setStopPosition(self, (px, py), play_sound_at_end):
+  def setStopPosition(self, xxx_todo_changeme, play_sound_at_end):
+    (px, py) = xxx_todo_changeme
     self.StopPositionX = px
     self.StopPositionY = py
     self.PlaySoundAtMoveEnd = play_sound_at_end
@@ -154,11 +155,11 @@ class tStone:
 
   def stopAnimationQuickly(self):
     self.Animation.finishQuickly()
-    
+
   def resetAnimation(self):
     self.Animation.reset()
     self.Animation.setActive(0)
- 
+
   def setBlinking(self, blink):
     if blink == self.Blinking:
       return
@@ -168,7 +169,7 @@ class tStone:
       self.BlinkOn = 0
     else:
       if self.Blinking and self.BlinkOn:
-	self.darken()
+        self.darken()
     self.Blinking = blink
 
   def lightUp(self):
@@ -181,8 +182,8 @@ class tStone:
 
   def updateImageArray(self):
     if self.LightLevel:
-      self.Animation.setImageArray(LIT_STONE_IMAGES[ COLORS[ self.Type ] ]) 
+      self.Animation.setImageArray(LIT_STONE_IMAGES[ COLORS[ self.Type ] ])
     else:
-      self.Animation.setImageArray(STONE_IMAGES[ COLORS[ self.Type ] ]) 
+      self.Animation.setImageArray(STONE_IMAGES[ COLORS[ self.Type ] ])
 
 

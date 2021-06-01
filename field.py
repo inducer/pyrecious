@@ -16,12 +16,12 @@ def findDestructionCandidates(field):
     last_type = field[ x ][ 0 ].type()
     for y in range(1, height):
       if field[ x ][ y ].type() == last_type:
-	row.append((x,y))
+        row.append((x,y))
       else:
-	if len(row) >= 3:
-	  result.extend(row)
-	row = [ (x,y) ]
-	last_type = field[ x ][ y ].type()
+        if len(row) >= 3:
+          result.extend(row)
+        row = [ (x,y) ]
+        last_type = field[ x ][ y ].type()
     if len(row) >= 3:
       result.extend(row)
 
@@ -30,23 +30,17 @@ def findDestructionCandidates(field):
     last_type = field[ 0 ][ y ].type()
     for x in range(1, width):
       if field[ x ][ y ].type() == last_type:
-	row.append((x,y))
+        row.append((x,y))
       else:
-	if len(row) >= 3:
-	  result.extend(row)
-	row = [ (x,y) ]
-	last_type = field[ x ][ y ].type()
+        if len(row) >= 3:
+          result.extend(row)
+        row = [ (x,y) ]
+        last_type = field[ x ][ y ].type()
     if len(row) >= 3:
       result.extend(row)
-  
-  # sort result is in y-ascending order.
-  def comparison_func((x1,y1), (x2,y2)):
-    if y1 == y2:
-      return cmp(x1, x2)
-    else:
-      return cmp(y1, y2)
 
-  result.sort(comparison_func)
+  # sort result is in y-ascending order.
+  result.sort(key=lambda tup: tup[::-1])
 
   # weed out duplicates
   last = None
@@ -54,7 +48,7 @@ def findDestructionCandidates(field):
   for item in result:
     if last != item:
       newresult.append(item)
-      last = item 
+      last = item
 
   return newresult
 
@@ -70,7 +64,7 @@ def copyField(field):
     for stone in column:
       newcolumn.append(stone)
     newfield.append(newcolumn)
-  
+
   return newfield
 
 def swapStones(field, start_x, start_y, end_x, end_y):
@@ -121,20 +115,20 @@ class tPlayingField:
       column = []
       for y in range(0, self.Height):
         stone = tStone()
-	stone.setPosition((x * self.GridX, (y - self.Height) * self.GridY))
-	stone.setVelocity((0, 0))
-	stone.setAcceleration((0, 3000))
-	stone.setStopPosition((x * self.GridX, y * self.GridY), 1)
-	stone.setMoveDelay((self.Height - y) * 0.04)
-	column.append(stone)
+        stone.setPosition((x * self.GridX, (y - self.Height) * self.GridY))
+        stone.setVelocity((0, 0))
+        stone.setAcceleration((0, 3000))
+        stone.setStopPosition((x * self.GridX, y * self.GridY), 1)
+        stone.setMoveDelay((self.Height - y) * 0.04)
+        column.append(stone)
       self.Field.append(column)
 
   # externally accessible -----------------------------------------------------
-  def width(self): 
+  def width(self):
     return self.Width
-  def height(self): 
+  def height(self):
     return self.Height
-  def field(self, x, y): 
+  def field(self, x, y):
     return self.Field[ x ][ y ]
   def hints(self):
     return self.Hints
@@ -166,13 +160,13 @@ class tPlayingField:
   def clearHintsDoneHooks(self):
     self.HintsDoneHooks = []
 
-  def showHint(self): 
+  def showHint(self):
     if self.isUIEnabled() and self.Hints and not self.StartDragIndex and not self.HintToDo:
       for i in self.ShownHints:
-	i.setBlinking(0)
+        i.setBlinking(0)
 
       if len(self.ConsumableHints) == 0:
-	self.ConsumableHints = self.Hints[:]
+        self.ConsumableHints = self.Hints[:]
 
       ((hint_x1, hint_y1), (hint_x2, hint_y2)) = self.ConsumableHints[ 0 ]
       self.ConsumableHints.pop(0)
@@ -180,12 +174,13 @@ class tPlayingField:
       self.ShownHints = [ self.Field[ hint_x1 ][ hint_y1 ],
         self.Field[ hint_x2 ][ hint_y2 ] ];
       for i in self.ShownHints:
-	i.setBlinking(1)
+        i.setBlinking(1)
       return True
     else:
       return False
 
-  def executeMove(self, ((start_x,start_y), (end_x,end_y))):
+  def executeMove(self, xxx_todo_changeme2):
+    ((start_x,start_y), (end_x,end_y)) = xxx_todo_changeme2
     self.StonesClearedThisMove = 0
 
     dx = end_x - start_x
@@ -219,7 +214,7 @@ class tPlayingField:
     if len(candidates) == 0:
       SOUND_INVALID.get().play()
       return 1
-   
+
     start_stone.setAcceleration((dx * 1000, dy * 1000))
     start_stone.setStopPosition((end_x * self.GridX, end_y * self.GridY), 0)
 
@@ -238,19 +233,19 @@ class tPlayingField:
     for i in self.Field:
       y = 0
       for j in i:
-	j.disableStopPosition()
-	j.setVelocity((
-	    (x - (self.width() - 1) / 2.) * 120. + random.uniform(0, 90),
-	    (y - (self.height() - 5) / 2.) * 180. + random.uniform(0, 90)))
-	j.setAcceleration((0, 600))
-	y += 1
+        j.disableStopPosition()
+        j.setVelocity((
+            (x - (self.width() - 1) / 2.) * 120. + random.uniform(0, 90),
+            (y - (self.height() - 5) / 2.) * 180. + random.uniform(0, 90)))
+        j.setAcceleration((0, 600))
+        y += 1
       x += 1
 
   # more or less internal -----------------------------------------------------
   def render(self, surface):
     for i in self.Field:
       for j in i:
-	j.render(surface, self.Position)
+        j.render(surface, self.Position)
 
     for i in self.KeepAliveList:
       i.render(surface, self.Position)
@@ -261,7 +256,7 @@ class tPlayingField:
     for i in self.KeepAliveList:
       i.step(seconds)
       if i.needsToStayAlive():
-	new_keep_alive_list.append(i)
+        new_keep_alive_list.append(i)
     self.KeepAliveList = new_keep_alive_list
 
     # check if something is still moving
@@ -269,21 +264,21 @@ class tPlayingField:
 
     for i in self.Field:
       for j in i:
-	j.step(seconds)
-	if j.isOnTheMove():
-	  still_on_the_move = 1
+        j.step(seconds)
+        if j.isOnTheMove():
+          still_on_the_move = 1
 
     # if not, check and destroy or enable ui
     if not (still_on_the_move) and self.WaitAndCheckMode:
       if not self.checkAndDestroyStones():
-	self.enableUI()
-	self.WaitAndCheckMode = 0
-	for hook in self.MoveDoneHooks:
-	  hook(self.StonesClearedThisMove)
+        self.enableUI()
+        self.WaitAndCheckMode = 0
+        for hook in self.MoveDoneHooks:
+          hook(self.StonesClearedThisMove)
 
-	self.GameBegun = True
+        self.GameBegun = True
 
-	self.startGeneratingHints()
+        self.startGeneratingHints()
 
     # generate hints
     if self.GameBegun:
@@ -300,7 +295,7 @@ class tPlayingField:
     elif my < 0 or my >= self.GridY * self.Height:
       return None
     else:
-      return (mx / self.GridX, my / self.GridY)
+      return (mx // self.GridX, my // self.GridY)
 
   def buttonDown(self, position, button):
     if not self.isUIEnabled():
@@ -308,7 +303,7 @@ class tPlayingField:
 
     if button != 1:
       return 0
-    
+
     self.StartDragIndex = self.getGridIndex(position)
     if self.StartDragIndex is None:
       return 0
@@ -345,13 +340,13 @@ class tPlayingField:
       prev_active = self.ActiveStone
       self.ActiveStone = self.Field[ x ][ y ]
       if self.ActiveStone != prev_active:
-	if prev_active:
-	  prev_active.resetAnimation()
-	self.ActiveStone.animate()
+        if prev_active:
+          prev_active.resetAnimation()
+        self.ActiveStone.animate()
     else:
       if self.ActiveStone:
-	self.ActiveStone.resetAnimation()
-	self.ActiveStone = None
+        self.ActiveStone.resetAnimation()
+        self.ActiveStone = None
 
   def checkAndDestroyStones(self):
     candidates = findDestructionCandidates(self.Field)
@@ -369,14 +364,14 @@ class tPlayingField:
       stone = self.Field[ x ][ y ]
       stone.startShrinking()
       self.KeepAliveList.append(stone)
-      
+
       self.Field[ x ][ 1:y+1 ] = self.Field[ x ][ 0:y ]
       for ynew in range(1, y+1):
-	moving_stone = self.Field[ x ][ ynew ]
-	moving_stone.setAcceleration((0, 1000))
-	moving_stone.setStopPosition((0, ynew * self.GridY), 1)
-	moving_stone.setMoveDelay(0.2)
-      
+        moving_stone = self.Field[ x ][ ynew ]
+        moving_stone.setAcceleration((0, 1000))
+        moving_stone.setStopPosition((0, ynew * self.GridY), 1)
+        moving_stone.setMoveDelay(0.2)
+
       newstonecount[ x ] += 1
 
       newstone = tStone()
@@ -403,14 +398,14 @@ class tPlayingField:
     candidates = findDestructionCandidates(self.Field)
     swapStones(self.Field, x1, y1, x2, y2)
     return len(candidates)
-    
+
   def startGeneratingHints(self):
     self.ConsumableHints = []
     self.Hints = []
 
     for x in range(0, self.Width):
       for y in range(0, self.Height):
-	self.HintToDo.append((x,y))
+        self.HintToDo.append((x,y))
 
   def generateHints(self):
     if not self.Field:
@@ -420,11 +415,11 @@ class tPlayingField:
       (x,y) = self.HintToDo.pop(0)
 
       if x + 1 < self.Width and self.tryMove(x, y, x + 1, y):
-	self.Hints.append(((x,y), (x+1, y)));
+        self.Hints.append(((x,y), (x+1, y)));
       if y+1 < self.Height and self.tryMove(x, y, x, y + 1):
-	self.Hints.append(((x,y), (x, y+1)));
-      
+        self.Hints.append(((x,y), (x, y+1)));
+
       if len(self.HintToDo) == 0:
-	self.ConsumableHints = self.Hints[:]
-	for hook in self.HintsDoneHooks:
-	  hook()
+        self.ConsumableHints = self.Hints[:]
+        for hook in self.HintsDoneHooks:
+          hook()

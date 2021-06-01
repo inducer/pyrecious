@@ -3,3 +3,4 @@ graphics/backdrops/,*
 Memory.Log
 *.pyc
 *~
+.*.sw[op]

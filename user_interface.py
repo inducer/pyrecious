@@ -80,9 +80,9 @@ class tButtonBase:
       colorset.SubHighlight = (150,150,150)
       colorset.Highlight = (100,100,100)
       if self.Pushed:
-	colorset.Inner = (180,180,180)
+        colorset.Inner = (180,180,180)
       else:
-	colorset.Inner = (200,200,200)
+        colorset.Inner = (200,200,200)
 
     draw3DBox(surface, x, y, w, h, colorset)
 
@@ -187,7 +187,7 @@ class tFloatUpAndFadeLabel:
     if self.Opacity > 0:
       self.Opacity -= seconds * 1
       if self.Opacity < 0:
-	self.Opacity = 0
+        self.Opacity = 0
       (x, y) = self.Position
       self.Position = (x, y - 50 * seconds)
 
@@ -219,7 +219,7 @@ class tTimer:
       tUserInterface.Instance.remove(self)
       self.Action()
 
-  
+
 
 class tUserInterface:
   Instance = None
@@ -235,7 +235,7 @@ class tUserInterface:
 
     global UI
     if tUserInterface.Instance is not None:
-      raise RuntimeError, "tUserInterface is a singleton"
+      raise RuntimeError("tUserInterface is a singleton")
     tUserInterface.Instance = self
 
   def setScreen(self, screen):
@@ -258,8 +258,8 @@ class tUserInterface:
   def add(self, element):
     def hasMember(element, name):
       for (mem_name, value) in inspect.getmembers(element):
-	if mem_name == name:
-	  return True
+        if mem_name == name:
+          return True
       return False
 
     if hasMember(element, "render"):
@@ -288,58 +288,58 @@ class tUserInterface:
     self.QuitFlag[ 0 ] = retval
 
   def installEventHandler(self, event_type, handler):
-    self.EventHandlers.append((event_type, handler)) 
+    self.EventHandlers.append((event_type, handler))
 
   def loop(self):
     if self.Screen is None:
-      raise RuntimeError, "Screen is still unset"
+      raise RuntimeError("Screen is still unset")
 
     while not self.QuitFlag[ 0 ]:
       seconds = float(self.Clock.tick(60)) / 1000
 
       for event in pygame.event.get():
-	mer = self.MouseEventReceivers[ 0 ]
+        mer = self.MouseEventReceivers[ 0 ]
 
-	if event.type == QUIT:
-	  self.QuitFlag[ 0 ] = True
-	elif event.type == KEYDOWN and event.key == K_ESCAPE:
-	  self.QuitFlag[ 0 ] = True
-	elif event.type == MOUSEBUTTONDOWN:
-	  if MOUSE_GRAB is not None:
-	    MOUSE_GRAB.buttonDown(event.pos,event.button)
-	  else:
-	    for obj in mer:
-	      if obj.buttonDown(event.pos, event.button):
-		break
-	elif event.type == MOUSEBUTTONUP:
-	  if MOUSE_GRAB is not None:
-	    MOUSE_GRAB.buttonUp(event.pos,event.button)
-	  else:
-	    for obj in mer:
-	      if obj.buttonUp(event.pos, event.button):
-		break
-	elif event.type == MOUSEMOTION:
-	  if MOUSE_GRAB is not None:
-	    MOUSE_GRAB.mouseMove(event.pos)
-	  else:
-	    for obj in mer:
-	      if obj.mouseMove(event.pos):
-		break
-	else: 
-	  for (type, handler) in self.EventHandlers:
-	    if event.type == type:
-	      handler(event)
+        if event.type == QUIT:
+          self.QuitFlag[ 0 ] = True
+        elif event.type == KEYDOWN and event.key == K_ESCAPE:
+          self.QuitFlag[ 0 ] = True
+        elif event.type == MOUSEBUTTONDOWN:
+          if MOUSE_GRAB is not None:
+            MOUSE_GRAB.buttonDown(event.pos,event.button)
+          else:
+            for obj in mer:
+              if obj.buttonDown(event.pos, event.button):
+                break
+        elif event.type == MOUSEBUTTONUP:
+          if MOUSE_GRAB is not None:
+            MOUSE_GRAB.buttonUp(event.pos,event.button)
+          else:
+            for obj in mer:
+              if obj.buttonUp(event.pos, event.button):
+                break
+        elif event.type == MOUSEMOTION:
+          if MOUSE_GRAB is not None:
+            MOUSE_GRAB.mouseMove(event.pos)
+          else:
+            for obj in mer:
+              if obj.mouseMove(event.pos):
+                break
+        else:
+          for (type, handler) in self.EventHandlers:
+            if event.type == type:
+              handler(event)
 
       for obj in self.TickReceivers[ 0 ]:
-	obj.step(seconds)
+        obj.step(seconds)
 
       for obj in self.Renderables[ 0 ]:
-	obj.render(self.Screen)
+        obj.render(self.Screen)
 
       pygame.display.flip()
 
     return self.QuitFlag[ 0 ]
 
-    
+
 
 

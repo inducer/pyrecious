@@ -4,8 +4,8 @@ def loadImage(name, colorkey = None):
     fullname = os.path.join('graphics', name)
     try:
         image = pygame.image.load(fullname)
-    except pygame.error, message:
-        raise SystemExit, message
+    except pygame.error as message:
+        raise SystemExit(message)
     image = image.convert_alpha()
     if colorkey is not None:
         if colorkey is -1:
@@ -21,8 +21,8 @@ def loadSound(name):
     fullname = os.path.join('sound', name)
     try:
       sound = pygame.mixer.Sound(fullname)
-    except pygame.error, message:
-      raise SystemExit, message
+    except pygame.error as message:
+      raise SystemExit(message)
     return sound
 
 
